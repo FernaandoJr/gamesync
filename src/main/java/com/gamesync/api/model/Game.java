@@ -1,6 +1,6 @@
 package com.gamesync.api.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -30,7 +30,6 @@ public class Game {
     private GameSource source;
     @Field("added_at")
     private Date addedAt;
-
 
     private Steam steam;
 

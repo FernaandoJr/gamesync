@@ -1,8 +1,14 @@
 package com.gamesync.api.service;
 
 import com.gamesync.api.model.Game;
+import com.gamesync.api.model.GameSource;
 import com.gamesync.api.repository.GameRepository;
 import org.springframework.stereotype.Service;
+
+import org.springframework.security.core.Authentication; // Importe esta
+import org.springframework.security.core.context.SecurityContextHolder; // Importe esta
+import com.gamesync.api.model.User; // Importe sua classe User
+
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -26,11 +32,36 @@ public class GameService {
         return gameRepository.findById(id);
     }
 
+    // --- NOVO MÉTODO AUXILIAR PARA OBTER O USUÁRIO AUTENTICADO ---
+    private User getAuthenticatedUser() {
+        // Obtém o objeto Authentication do contexto de segurança.
+        // Este objeto contém os detalhes do usuário autenticado.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Verifica se há um usuário autenticado e se ele é do tipo User (nosso modelo).
+        if (authentication != null && authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal();
+        }
+        // Se não houver usuário autenticado ou se não for do tipo esperado,
+        // pode lançar uma exceção ou retornar null, dependendo da sua lógica.
+        // Para este cenário, é melhor garantir que só se chame isso em endpoints protegidos.
+        throw new IllegalStateException("Nenhum usuário autenticado encontrado no contexto de segurança.");
+    }
+
 
     public Game createGame(Game game) {
-        // Define a data de adição no momento da criação.
-        // É uma lógica de negócio que reside no serviço, não no controller.
-        game.setAddedAt(new Date());
+        try {
+            game.setAddedAt(new Date());
+        } catch(Exception e) {
+            throw new RuntimeException("Erro ao definir a data de adição do jogo: " + e.getMessage());
+        }
+
+        User currentUser = getAuthenticatedUser();
+        game.setUserId(currentUser.getId()); // Define o userId do jogo
+
+        if (game.getSource() != GameSource.STEAM) {
+            game.setSteam(null);
+        }
         return gameRepository.save(game);
     }
 
