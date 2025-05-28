@@ -1,6 +1,5 @@
 package com.gamesync.api.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 
 import java.time.OffsetDateTime;
