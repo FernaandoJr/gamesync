@@ -1,48 +1,49 @@
 package com.gamesync.api.model;
 
 import jakarta.persistence.*;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.OffsetDateTime;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-@Entity
+@Document(collection = "games")
 public class Game {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     private String name;
     private String description;
     private String developer;
+    private String userId; // ID do usuário que adicionou o jogo
+
+
+    @Field("hours_played")
     private Integer hoursPlayed;
     private boolean favorite;
-
-
-    @ElementCollection
-    private List<String> genres;
-
-    @ElementCollection
-    private List<String> tags;
-
-    @ElementCollection
-    private List<String> platforms;
-
-    private OffsetDateTime addedAt;
-
-    @Enumerated(EnumType.STRING)
+    private Set<String> genres = new HashSet<>();
+    private Set<String> tags = new HashSet<>();
+    private Set<String> platforms = new HashSet<>();
     private GameStatus status;
-
-    @Enumerated(EnumType.STRING)
     private GameSource source;
+    @Field("added_at")
+    private Date addedAt;
 
-    @Embedded
+
     private Steam steam;
 
 
-    public Long getId() {
+    // Construtor padrão necessário para o Spring Data MongoDB
+    public Game() {
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -70,6 +71,14 @@ public class Game {
         this.developer = developer;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
     public Integer getHoursPlayed() {
         return hoursPlayed;
     }
@@ -86,36 +95,28 @@ public class Game {
         this.favorite = favorite;
     }
 
-    public List<String> getGenres() {
+    public Set<String> getGenres() {
         return genres;
     }
 
-    public void setGenres(List<String> genres) {
+    public void setGenres(Set<String> genres) {
         this.genres = genres;
     }
 
-    public List<String> getTags() {
+    public Set<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
+    public void setTags(Set<String> tags) {
         this.tags = tags;
     }
 
-    public List<String> getPlatforms() {
+    public Set<String> getPlatforms() {
         return platforms;
     }
 
-    public void setPlatforms(List<String> platforms) {
+    public void setPlatforms(Set<String> platforms) {
         this.platforms = platforms;
-    }
-
-    public OffsetDateTime getAddedAt() {
-        return addedAt;
-    }
-
-    public void setAddedAt(OffsetDateTime addedAt) {
-        this.addedAt = addedAt;
     }
 
     public GameStatus getStatus() {
@@ -132,6 +133,14 @@ public class Game {
 
     public void setSource(GameSource source) {
         this.source = source;
+    }
+
+    public Date getAddedAt() {
+        return addedAt;
+    }
+
+    public void setAddedAt(Date addedAt) {
+        this.addedAt = addedAt;
     }
 
     public Steam getSteam() {

@@ -1,42 +1,70 @@
+// src/main/java/com/gamesync/api/model/SteamDetails.java
 package com.gamesync.api.model;
 
-import java.time.OffsetDateTime;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 public class Steam {
-    private Long appId;
-    private String coverUrl;
-    private Double achievementCompletion;
-    private OffsetDateTime lastPlayedAt;
+    @Field("app_id")
+    private String appId; // Geralmente um número, mas pode ser tratado como String para flexibilidade
+    private String storeUrl;
+    private String headerImageUrl;
+    private String achievementCompletion;
 
-    public Long getAppId() {
-        return appId;
+    // --- Construtores ---
+    public Steam() {
     }
 
-    public void setAppId(Long appId) {
+
+    public Steam(String appId, String storeUrl, String headerImageUrl, Double price, String achievementCompletion) {
         this.appId = appId;
-    }
-
-    public String getCoverUrl() {
-        return coverUrl;
-    }
-
-    public void setCoverUrl(String coverUrl) {
-        this.coverUrl = coverUrl;
-    }
-
-    public Double getAchievementCompletion() {
-        return achievementCompletion;
-    }
-
-    public void setAchievementCompletion(Double achievementCompletion) {
+        this.storeUrl = storeUrl;
+        this.headerImageUrl = headerImageUrl;
         this.achievementCompletion = achievementCompletion;
     }
 
-    public OffsetDateTime getLastPlayedAt() {
-        return lastPlayedAt;
+    // --- Getters e Setters ---
+
+    public String getAppId() {
+        return appId;
     }
 
-    public void setLastPlayedAt(OffsetDateTime lastPlayedAt) {
-        this.lastPlayedAt = lastPlayedAt;
+    public void setAppId(String appId) {
+        this.appId = appId;
+    }
+
+    public String getStoreUrl() {
+        return storeUrl;
+    }
+
+    public void setStoreUrl(String storeUrl) {
+        this.storeUrl = storeUrl;
+    }
+
+    public String getHeaderImageUrl() {
+        return headerImageUrl;
+    }
+
+    public void setHeaderImageUrl(String headerImageUrl) {
+        this.headerImageUrl = headerImageUrl;
+    }
+
+    public String getAchievementCompletion() {
+        return achievementCompletion;
+    }
+
+    public void setAchievementCompletion(String achievementCompletion) {
+        this.achievementCompletion = achievementCompletion;
+    }
+
+    // --- Método toString para facilitar a depuração ---
+
+    @Override
+    public String toString() {
+        return "SteamDetails{" +
+                "appId='" + appId + '\'' +
+                ", storeUrl='" + storeUrl + '\'' +
+                ", headerImageUrl='" + headerImageUrl + '\'' +
+                ", achievementCompletion='" + achievementCompletion + '\'' +
+                '}';
     }
 }

@@ -1,7 +1,8 @@
 package com.gamesync.api.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import com.gamesync.api.model.Game;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-public interface GameRepository extends JpaRepository<Game, Long> {
+public interface GameRepository extends MongoRepository<Game, String> {
+
 }
