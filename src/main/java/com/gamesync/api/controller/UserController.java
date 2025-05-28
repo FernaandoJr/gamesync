@@ -19,6 +19,7 @@ public class UserController {
     public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+
     }
 
     /**
@@ -37,6 +38,10 @@ public class UserController {
         }
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return new ResponseEntity<>("Email já registrado!", HttpStatus.BAD_REQUEST);
+        }
+
+        if(userRepository.findBySteamId(user.getSteamId()).isPresent()) {
+            return new ResponseEntity<>("Steam ID já registrado!", HttpStatus.BAD_REQUEST);
         }
 
         // Criptografa a senha antes de salvar

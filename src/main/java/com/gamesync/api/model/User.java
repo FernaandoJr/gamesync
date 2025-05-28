@@ -18,6 +18,10 @@ public class User implements UserDetails {
     @Indexed(unique = true)
     private String username;
     private String password;
+
+    @Indexed(unique = true)
+    private String steamId;
+
     @Indexed(unique = true)
     private String email;
     private List<String> roles;
@@ -48,6 +52,14 @@ public class User implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getSteamId() {
+        return steamId;
+    }
+
+    public void setSteamId(String steamId) {
+        this.steamId = steamId;
     }
 
     public String getEmail() {
