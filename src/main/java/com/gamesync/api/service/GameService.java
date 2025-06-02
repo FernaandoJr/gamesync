@@ -1,7 +1,9 @@
 package com.gamesync.api.service;
 
+import com.gamesync.api.dto.ErrorResponse;
 import com.gamesync.api.model.Game;
 import com.gamesync.api.model.GameSource;
+import com.gamesync.api.model.GameStatus;
 import com.gamesync.api.repository.GameRepository;
 import org.springframework.stereotype.Service;
 
@@ -9,9 +11,11 @@ import org.springframework.security.core.Authentication; // Importe esta
 import org.springframework.security.core.context.SecurityContextHolder; // Importe esta
 import com.gamesync.api.model.User; // Importe sua classe User
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -24,15 +28,21 @@ public class GameService {
     }
 
     public List<Game> findAllGames() {
-        return gameRepository.findAll();
+        User currentUser = getAuthenticatedUser();
+        return gameRepository.findAll().stream().filter(
+                game -> game.getUserId().equals(currentUser.getId())).collect(Collectors.toList()
+        );
     }
 
 
     public Optional<Game> findGameById(String id) {
-        return gameRepository.findById(id);
+        User currentUser = getAuthenticatedUser();
+
+        return gameRepository.findById(id)
+                .filter(game -> game.getUserId().equals(currentUser.getId()));
     }
 
-    // --- NOVO MÉTODO AUXILIAR PARA OBTER O USUÁRIO AUTENTICADO ---
+    // --- MÉTODO AUXILIAR PARA OBTER O USUÁRIO AUTENTICADO ---
     private User getAuthenticatedUser() {
         // Obtém o objeto Authentication do contexto de segurança.
         // Este objeto contém os detalhes do usuário autenticado.
@@ -50,14 +60,23 @@ public class GameService {
 
 
     public Game createGame(Game game) {
-        try {
-            game.setAddedAt(new Date());
-        } catch(Exception e) {
-            throw new RuntimeException("Erro ao definir a data de adição do jogo: " + e.getMessage());
+        game.setAddedAt(new Date());
+
+        if(game.getSource() == null || game.getSource() != GameSource.STEAM) {
+            game.setSource(GameSource.MANUAL);
+        }
+
+        if(game.getHoursPlayed() == null) {
+            game.setHoursPlayed(0);
         }
 
         User currentUser = getAuthenticatedUser();
-        game.setUserId(currentUser.getId()); // Define o userId do jogo
+        game.setUserId(currentUser.getId());
+
+        if(!Arrays.asList(GameStatus.values()).contains(game.getStatus())){
+            game.setStatus(null);
+        }
+
 
         if (game.getSource() != GameSource.STEAM) {
             game.setSteam(null);
@@ -65,31 +84,61 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public Optional<Game> updateGame(String id, Game updatedGame) { // <-- ID agora é String
+    public Optional<Game> updateGame(String id, Game updatedGame) {
         return gameRepository.findById(id)
                 .map(existingGame -> {
-                    existingGame.setName(updatedGame.getName());
-                    existingGame.setDescription(updatedGame.getDescription());
-                    existingGame.setDeveloper(updatedGame.getDeveloper());
-                    existingGame.setHoursPlayed(updatedGame.getHoursPlayed());
-                    existingGame.setFavorite(updatedGame.isFavorite());
-                    existingGame.setGenres(updatedGame.getGenres());
-                    existingGame.setTags(updatedGame.getTags());
-                    existingGame.setPlatforms(updatedGame.getPlatforms());
-                    existingGame.setAddedAt(updatedGame.getAddedAt()); // Considere se isso deve ser atualizado ou se é só na criação
-                    existingGame.setStatus(updatedGame.getStatus());
-                    existingGame.setSource(updatedGame.getSource());
-                    existingGame.setSteam(updatedGame.getSteam());
-                    return gameRepository.save(existingGame); // Salva o jogo atualizado
+                    if(updatedGame.getName() != null && !updatedGame.getName().isEmpty()) {
+                        existingGame.setName(updatedGame.getName());
+                    }
+                    if(updatedGame.getDescription() != null && !updatedGame.getDescription().isEmpty()) {
+                        existingGame.setDescription(updatedGame.getDescription());
+                    }
+
+                    if(updatedGame.getDeveloper() != null && !updatedGame.getDeveloper().isEmpty()) {
+                        existingGame.setDeveloper(updatedGame.getDeveloper());
+                    }
+
+                    if(updatedGame.getHoursPlayed() != null) {
+                        existingGame.setHoursPlayed(updatedGame.getHoursPlayed());
+                    }
+
+                    if(!updatedGame.getFavorite() && existingGame.getFavorite()) {
+                        existingGame.setFavorite(updatedGame.getFavorite());
+                    }
+
+                    if(updatedGame.getGenres() != null && !updatedGame.getGenres().isEmpty()) {
+                        existingGame.setGenres(updatedGame.getGenres());
+                    }
+
+                    if(updatedGame.getTags() != null && !updatedGame.getTags().isEmpty()) {
+                        existingGame.setTags(updatedGame.getTags());
+                    }
+
+                    if(updatedGame.getPlatforms() != null && !updatedGame.getPlatforms().isEmpty()) {
+                        existingGame.setPlatforms(updatedGame.getPlatforms());
+                    }
+
+                    if(updatedGame.getStatus() != null) {
+                        existingGame.setStatus(updatedGame.getStatus());
+                    }
+
+                    return gameRepository.save(existingGame);
                 });
     }
 
+    public boolean deleteGame(String id) {
+        User currentUser = getAuthenticatedUser();
+        Optional<Game> game = gameRepository.findById(id);
 
-    public boolean deleteGame(String id) { // <-- ID agora é String
-        if (gameRepository.existsById(id)) {
+        if (game.isPresent() && game.get().getUserId().equals(currentUser.getId())) {
             gameRepository.deleteById(id);
             return true;
         }
         return false;
+    }
+
+    public void deleteAllGamesByUserId(String userId) {
+        List<Game> userGames = gameRepository.findByUserId(userId);
+        gameRepository.deleteAll(userGames);
     }
 }
