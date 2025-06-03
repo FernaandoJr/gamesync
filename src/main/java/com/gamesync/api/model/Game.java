@@ -15,8 +15,8 @@ public class Game {
     private String name;
     private String description;
     private String developer;
-    private String userId; // ID do usuário que adicionou o jogo
 
+    private String userId;
 
     @Field("hours_played")
     private Integer hoursPlayed;
@@ -26,13 +26,12 @@ public class Game {
     private Set<String> platforms = new HashSet<>();
     private GameStatus status;
     private GameSource source;
+
     @Field("added_at")
     private Date addedAt;
 
     private Steam steam;
 
-
-    // Construtor padrão necessário para o Spring Data MongoDB
     public Game() {
     }
 
@@ -84,7 +83,7 @@ public class Game {
         this.hoursPlayed = hoursPlayed;
     }
 
-    public boolean getFavorite() {
+    public boolean isFavorite() {
         return favorite;
     }
 
@@ -146,5 +145,14 @@ public class Game {
 
     public void setSteam(Steam steam) {
         this.steam = steam;
+    }
+
+    @Override
+    public String toString() {
+        return "Game{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                // Adicione outros campos para uma melhor representação em String
+                '}';
     }
 }

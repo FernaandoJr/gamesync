@@ -1,29 +1,26 @@
-// src/main/java/com/gamesync/api/model/SteamDetails.java
 package com.gamesync.api.model;
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
 public class Steam {
+
     @Field("app_id")
-    private String appId; // Geralmente um número, mas pode ser tratado como String para flexibilidade
+    private String appId;
     private String storeUrl;
     private String headerImageUrl;
     private String achievementCompletion;
 
-    // --- Construtores ---
     public Steam() {
     }
 
-
-    public Steam(String appId, String storeUrl, String headerImageUrl, Double price, String achievementCompletion) {
+    public Steam(String appId, String storeUrl, String headerImageUrl, String achievementCompletion) {
         this.appId = appId;
         this.storeUrl = storeUrl;
         this.headerImageUrl = headerImageUrl;
         this.achievementCompletion = achievementCompletion;
     }
 
-    // --- Getters e Setters ---
-
+    // Getters e Setters
     public String getAppId() {
         return appId;
     }
@@ -56,11 +53,9 @@ public class Steam {
         this.achievementCompletion = achievementCompletion;
     }
 
-    // --- Método toString para facilitar a depuração ---
-
     @Override
     public String toString() {
-        return "SteamDetails{" +
+        return "Steam{" +
                 "appId='" + appId + '\'' +
                 ", storeUrl='" + storeUrl + '\'' +
                 ", headerImageUrl='" + headerImageUrl + '\'' +

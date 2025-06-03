@@ -1,4 +1,3 @@
-// src/main/java/com/gamesync.api.model/User.java
 package com.gamesync.api.model;
 
 import org.springframework.data.annotation.Id;
@@ -10,20 +9,23 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Document(collection = "users")
 public class User implements UserDetails {
     @Id
     private String id;
+
     @Indexed(unique = true)
     private String username;
     private String password;
 
     @Indexed(unique = true)
+    private String email;
+
+    @Indexed(unique = true, sparse = true) // sparse = true permite nulos se não for único
     private String steamId;
 
-    @Indexed(unique = true)
-    private String email;
     private List<String> roles;
 
     public User() {
@@ -36,55 +38,14 @@ public class User implements UserDetails {
         this.roles = roles;
     }
 
-    // --- Getters e Setters para os atributos específicos de User ---
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getSteamId() {
-        return steamId;
-    }
-
-    public void setSteamId(String steamId) {
-        this.steamId = steamId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public List<String> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<String> roles) {
-        this.roles = roles;
-    }
-
-    // --- Métodos da interface UserDetails (implementados para Spring Security) ---
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.roles == null) {
+            return List.of();
+        }
         return this.roles.stream()
                 .map(SimpleGrantedAuthority::new)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -97,13 +58,45 @@ public class User implements UserDetails {
         return this.username;
     }
 
-    // --- Método toString (para depuração) ---
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    // --- Getters e Setters ---
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public void setUsername(String username) { this.username = username; }
+    public void setPassword(String password) { this.password = password; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getSteamId() { return steamId; }
+    public void setSteamId(String steamId) { this.steamId = steamId; }
+    public List<String> getRoles() { return roles; }
+    public void setRoles(List<String> roles) { this.roles = roles; }
+
     @Override
     public String toString() {
         return "User{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
+                ", steamId='" + steamId + '\'' +
                 ", roles=" + roles +
                 '}';
     }

@@ -1,16 +1,23 @@
 package com.gamesync.api.controller;
 
 import com.gamesync.api.dto.ErrorResponse;
+import com.gamesync.api.dto.GameCreateDTO;
+import com.gamesync.api.dto.GameUpdateDTO;
+import com.gamesync.api.exception.ResourceNotFoundException;
 import com.gamesync.api.model.Game;
-import com.gamesync.api.model.GameSource;
-import com.gamesync.api.model.GameStatus;
 import com.gamesync.api.service.GameService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/games")
@@ -22,69 +29,52 @@ public class GameController {
         this.gameService = gameService;
     }
 
+    @PostMapping
+    @Operation(summary = "Cria um novo jogo",
+            description = "Adiciona um novo jogo à coleção do usuário.",
+            // Adicionando a documentação do header aqui
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Jogo criado com sucesso",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = Game.class))),
+                    @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "Não autenticado",
+                            content = @Content(mediaType = "application/json",
+                                    schema = @Schema(implementation = ErrorResponse.class))),
+            })
+    public ResponseEntity<Game> createGame(@Valid @RequestBody GameCreateDTO createDTO) {
+        Game createdGame = gameService.createGame(createDTO);
+        return new ResponseEntity<>(createdGame, HttpStatus.CREATED);
+    }
+
     @GetMapping
-    public List<Game> getAllGames() {
-        return gameService.findAllGames();
+    public ResponseEntity<List<Game>> getAllGamesForCurrentUser() {
+        List<Game> games = gameService.findAllGamesByCurrentUser();
+        return ResponseEntity.ok(games);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Game> getGameById(@PathVariable String id) {
-        return gameService.findGameById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() ->{
-                            ErrorResponse error = new ErrorResponse("Jogo não encontrado!", HttpStatus.NOT_FOUND.value());
-                            return new ResponseEntity(error, HttpStatus.NOT_FOUND);
-                        });
-    }
-
-    @PostMapping
-    public ResponseEntity<Game> createGame(@RequestBody Game game) {
-        if (game.getName() == null || game.getName().isBlank()) {
-            ErrorResponse error = new ErrorResponse("O nome do jogo é obrigatório.", HttpStatus.BAD_REQUEST.value());
-            return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
-        }
-
-        if (game.getDeveloper() == null || game.getDeveloper().isBlank()) {
-            ErrorResponse error = new ErrorResponse("O desenvolvedor do jogo é obrigatório.", HttpStatus.BAD_REQUEST.value());
-            return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
-        }
-
-        if (game.getStatus() == null || !java.util.Arrays.asList(GameStatus.values()).contains(game.getStatus())) {
-            ErrorResponse error = new ErrorResponse("O status do jogo é obrigatório ou inválido.", HttpStatus.BAD_REQUEST.value());
-            return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
-        }
-
-        List<Game> userGames = gameService.findAllGames();
-        boolean gameExists = userGames.stream()
-                .anyMatch(existingGame ->
-                                existingGame.getName() != null && existingGame.getName().equalsIgnoreCase(game.getName())
-                );
-        if (gameExists) {
-            ErrorResponse error = new ErrorResponse("Jogo com este nome já existe para este usuário.", HttpStatus.CONFLICT.value());
-            return new ResponseEntity(error, HttpStatus.CONFLICT);
-        }
-
-        try {
-            Game createdGame = gameService.createGame(game);
-            return ResponseEntity.ok(createdGame);
-        } catch (IllegalArgumentException e) {
-            ErrorResponse error = new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value());
-            return new ResponseEntity(error, HttpStatus.BAD_REQUEST);
-        }
+        Game game = gameService.findGameByIdAndCurrentUser(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Jogo com ID '" + id + "' não encontrado ou acesso negado."));
+        return ResponseEntity.ok(game);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Game> updateGame(@PathVariable String id, @RequestBody Game updated) {
-        return gameService.updateGame(id, updated)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Game> updateGame(@PathVariable String id, @Valid @RequestBody GameUpdateDTO updateDTO) {
+        Game updatedGame = gameService.updateGame(id, updateDTO)
+                .orElseThrow(() -> new ResourceNotFoundException("Falha ao atualizar. Jogo com ID '" + id + "' não encontrado ou acesso negado."));
+        return ResponseEntity.ok(updatedGame);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGame(@PathVariable String id) {
         if (gameService.deleteGame(id)) {
             return ResponseEntity.ok().build();
+        } else {
+            throw new ResourceNotFoundException("Falha ao excluir. Jogo com ID '" + id + "' não encontrado ou acesso negado.");
         }
-        return ResponseEntity.notFound().build();
     }
 }

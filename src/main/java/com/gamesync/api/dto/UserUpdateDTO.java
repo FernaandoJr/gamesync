@@ -1,12 +1,21 @@
 package com.gamesync.api.dto;
 
-public class UserUpdateDTO {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 
+public class UserUpdateDTO {
+    @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters if provided.")
     private String username;
+
+    @Email(message = "Email should be valid if provided.")
+    @Size(max = 100, message = "Email must be up to 100 characters if provided.")
     private String email;
+
+    @Size(min = 6, max = 100, message = "New password must be between 6 and 100 characters if provided.")
     private String newPassword;
 
-    public UserUpdateDTO() {}
+    public UserUpdateDTO() {
+    }
 
     public String getUsername() {
         return username;
