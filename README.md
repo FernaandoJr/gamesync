@@ -98,11 +98,11 @@ Por padrão, a API estará disponível em `http://localhost:8080`.
 
 Após iniciar a aplicação, a documentação interativa da API (Swagger UI) estará disponível em:
 
-* [http://localhost:8080/swagger-ui.html](https://www.google.com/search?q=http://localhost:8080/swagger-ui.html)
+* [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
 
 A especificação OpenAPI v3 em formato JSON pode ser acessada em:
 
-* [http://localhost:8080/v3/api-docs](https://www.google.com/search?q=http://localhost:8080/v3/api-docs)
+* [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
 
 A autenticação HTTP Basic pode ser configurada diretamente na interface do Swagger UI através do botão "Authorize" para testar os endpoints protegidos.
 
