@@ -1,26 +1,58 @@
 package com.gamesync.api.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank; // ESSENCIAL
-import jakarta.validation.constraints.Size;   // ESSENCIAL
+import jakarta.validation.constraints.Email;    // Valida se o campo é um endereço de email bem formado.
+import jakarta.validation.constraints.NotBlank;  // Garante que o campo não seja nulo e não seja apenas espaços em branco.
+import jakarta.validation.constraints.Size;    // Define restrições de tamanho (mínimo/máximo) para Strings.
 
+/**
+ * Data Transfer Object (DTO) para encapsular os dados necessários para o registro de um novo usuário.
+ * Esta classe é usada como corpo da requisição (request body) no endpoint de registro de usuários
+ * e inclui anotações de validação para garantir que os dados fornecidos sejam válidos
+ * antes de serem processados pela lógica de serviço.
+ */
 public class UserRegistrationDTO {
 
-    @NotBlank(message = "Username is required.") //
+    /**
+     * Nome de usuário para o novo usuário.
+     * É obrigatório, deve ter entre 3 e 50 caracteres.
+     */
+    @NotBlank(message = "Username is required.")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters.")
     private String username;
 
-    @NotBlank(message = "Password is required.") //
+    /**
+     * Senha para o novo usuário.
+     * É obrigatória, deve ter entre 6 e 100 caracteres.
+     * Esta senha será codificada pelo serviço antes de ser armazenada.
+     */
+    @NotBlank(message = "Password is required.")
     @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters.")
     private String password;
 
-    @NotBlank(message = "Email is required.") //
-    @Email(message = "Email should be valid.") //
+    /**
+     * Endereço de email para o novo usuário.
+     * É obrigatório, deve ser um email válido e ter no máximo 100 caracteres.
+     */
+    @NotBlank(message = "Email is required.")
+    @Email(message = "Email should be valid.")
     @Size(max = 100, message = "Email must be up to 100 characters.")
     private String email;
 
+    /**
+     * Steam ID do usuário (opcional).
+     * Se fornecido, deve ter no máximo 50 caracteres.
+     */
     @Size(max = 50, message = "Steam ID must be up to 50 characters if provided.")
     private String steamId;
+
+    // Construtor padrão é implicitamente fornecido se nenhum outro for definido,
+    // ou pode ser adicionado explicitamente se necessário para alguma biblioteca ou clareza.
+    // public UserRegistrationDTO() {}
+
+    // --- Getters e Setters ---
+    // Métodos padrão para acessar e modificar os campos da classe.
+    // Usados pelo framework Spring MVC (via Jackson) para popular o objeto a partir do JSON da requisição
+    // e pelo código da aplicação para acessar os valores.
 
     public String getUsername() {
         return username;
