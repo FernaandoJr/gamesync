@@ -1,4 +1,3 @@
-// File: src/main/java/com/gamesync/api/config/SecurityConfig.java
 package com.gamesync.api.config;
 
 import com.gamesync.api.service.CustomUserDetailsService;
@@ -26,6 +25,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint; // Injeção
+
+    // Construtor para injetar o CustomAuthenticationEntryPoint
+    public SecurityConfig(CustomAuthenticationEntryPoint customAuthenticationEntryPoint) {
+        this.customAuthenticationEntryPoint = customAuthenticationEntryPoint;
+    }
+
     /**
      * Define um bean para o {@link PasswordEncoder}.
      * Utiliza o BCryptPasswordEncoder, que é um algoritmo forte e recomendado
@@ -48,7 +54,7 @@ public class SecurityConfig {
      * @param passwordEncoder O codificador de senhas definido acima.
      * @return Uma instância de ProviderManager configurada com o DaoAuthenticationProvider.
      */
-    @Bean //
+    @Bean
     public AuthenticationManager authenticationManager(
             CustomUserDetailsService userDetailsService,
             PasswordEncoder passwordEncoder
@@ -56,7 +62,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
-        return new ProviderManager(authenticationProvider); //
+        return new ProviderManager(authenticationProvider);
     }
 
     /**
@@ -67,35 +73,25 @@ public class SecurityConfig {
      * @return A cadeia de filtros de segurança construída.
      * @throws Exception Se ocorrer um erro durante a configuração.
      */
-    @Bean //
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // Desabilita a proteção CSRF (Cross-Site Request Forgery).
-                // Comum para APIs REST stateless que não usam sessões baseadas em cookies da mesma forma
-                // que aplicações web tradicionais. Se a API for consumida por um frontend no mesmo domínio
-                // e usar cookies para autenticação, CSRF pode ser relevante. Para autenticação baseada em token
-                // ou HTTP Basic, geralmente é desabilitado.
-                .csrf(AbstractHttpConfigurer::disable) //
-
-                .authorizeHttpRequests(authorize -> authorize //
-                        // Permite todas as requisições HTTP POST para o endpoint "/users/register"
-                        // sem necessidade de autenticação. Isso é essencial para permitir que novos usuários se registrem.
-                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll() //
-                        // Para qualquer outra requisição não especificada acima, exige autenticação.
-                        .anyRequest().authenticated() //
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/webjars/**" // Geralmente necessário para recursos estáticos do Swagger UI
+                        ).permitAll() //
+                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll() // Permite registro sem autenticação
+                        .anyRequest().authenticated() // Todas as outras requisições exigem autenticação
                 )
+                .httpBasic(httpBasic -> httpBasic
+                        .authenticationEntryPoint(customAuthenticationEntryPoint) // Usa nosso entry point customizado
+                )
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-                // Habilita a autenticação HTTP Basic.
-                // Isso significa que os clientes devem enviar um cabeçalho "Authorization"
-                // com credenciais "Basic <base64_encoded_username:password>".
-                .httpBasic(httpBasic -> {}) //
-
-                // Configura o gerenciamento de sessão para ser STATELESS.
-                // Para APIs REST, é crucial que cada requisição seja independente e não dependa
-                // de uma sessão no servidor. O servidor não armazenará o estado da sessão do cliente.
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)); //
-
-        // Constrói e retorna a cadeia de filtros de segurança.
         return http.build();
     }
 }
