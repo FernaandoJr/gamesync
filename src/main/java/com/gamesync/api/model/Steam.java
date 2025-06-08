@@ -8,33 +8,11 @@ import org.springframework.data.mongodb.core.mapping.Field;
  */
 public class Steam { //
 
-    /**
-     * O ID do aplicativo (jogo) na plataforma Steam.
-     * A anotação @Field especifica que no documento MongoDB, este campo será armazenado como "app_id".
-     */
-    @Field("app_id") // Mapeia o campo Java 'appId' para o campo 'app_id' no MongoDB.
+    @Field("app_id")
     private String appId;
-
-    /**
-     * A URL da página do jogo na loja Steam.
-     */
     private String storeUrl; //
-
-    /**
-     * A URL da imagem de cabeçalho (header image) do jogo na Steam.
-     */
     private String headerImageUrl; //
-
-    /**
-     * Uma representação do progresso de conquistas do jogo na Steam.
-     * (Ex: "50%", "10/20 achievements"). O formato exato pode depender da fonte dos dados.
-     */
     private String achievementCompletion; //
-
-    /**
-     * Construtor padrão.
-     * Necessário para frameworks como Spring Data MongoDB e Jackson (para desserialização).
-     */
     public Steam() { //
     }
 
@@ -51,9 +29,6 @@ public class Steam { //
         this.headerImageUrl = headerImageUrl;
         this.achievementCompletion = achievementCompletion;
     }
-
-    // --- Getters e Setters ---
-    // Métodos padrão para acessar e modificar os campos da classe.
 
     public String getAppId() { //
         return appId;
@@ -93,7 +68,7 @@ public class Steam { //
      * @return Uma String representando o objeto Steam.
      */
     @Override
-    public String toString() { //
+    public String toString() {
         return "Steam{" +
                 "appId='" + appId + '\'' +
                 ", storeUrl='" + storeUrl + '\'' +

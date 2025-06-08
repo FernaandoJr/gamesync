@@ -1,7 +1,7 @@
 package com.gamesync.api.dto;
 
-import jakarta.validation.constraints.Email; // Valida se o campo é um endereço de email bem formado.
-import jakarta.validation.constraints.Size;   // Define restrições de tamanho (mínimo/máximo) para Strings.
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 
 /**
  * Data Transfer Object (DTO) para encapsular os dados que podem ser atualizados

@@ -1,8 +1,8 @@
 package com.gamesync.api.dto;
 
-import jakarta.validation.constraints.Email;    // Valida se o campo é um endereço de email bem formado.
-import jakarta.validation.constraints.NotBlank;  // Garante que o campo não seja nulo e não seja apenas espaços em branco.
-import jakarta.validation.constraints.Size;    // Define restrições de tamanho (mínimo/máximo) para Strings.
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 /**
  * Data Transfer Object (DTO) para encapsular os dados necessários para o registro de um novo usuário.
@@ -45,14 +45,6 @@ public class UserRegistrationDTO {
     @Size(max = 50, message = "Steam ID must be up to 50 characters if provided.")
     private String steamId;
 
-    // Construtor padrão é implicitamente fornecido se nenhum outro for definido,
-    // ou pode ser adicionado explicitamente se necessário para alguma biblioteca ou clareza.
-    // public UserRegistrationDTO() {}
-
-    // --- Getters e Setters ---
-    // Métodos padrão para acessar e modificar os campos da classe.
-    // Usados pelo framework Spring MVC (via Jackson) para popular o objeto a partir do JSON da requisição
-    // e pelo código da aplicação para acessar os valores.
 
     public String getUsername() {
         return username;

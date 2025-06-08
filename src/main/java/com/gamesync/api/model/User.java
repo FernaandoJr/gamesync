@@ -3,12 +3,12 @@ package com.gamesync.api.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.GrantedAuthority; // Interface que representa uma permissão/role concedida ao usuário.
-import org.springframework.security.core.authority.SimpleGrantedAuthority; // Implementação concreta de GrantedAuthority.
-import org.springframework.security.core.userdetails.UserDetails; // Interface do Spring Security que define os detalhes essenciais de um usuário.
-import java.util.Collection; // Interface base para coleções.
-import java.util.List;        // Interface para listas ordenadas.
-import java.util.stream.Collectors; // Para operações com Streams (ex: transformar lista de Strings em lista de GrantedAuthority).
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Entidade que representa um usuário no sistema GameSync.
@@ -17,30 +17,24 @@ import java.util.stream.Collectors; // Para operações com Streams (ex: transfo
  * ela também implementa a interface UserDetails do Spring Security,
  * permitindo que seja usada diretamente pelo framework de segurança para autenticação e autorização.
  */
-@Document(collection = "users") // Anotação do Spring Data MongoDB que especifica o nome da coleção no banco.
-public class User implements UserDetails { // A classe User implementa UserDetails para se integrar com o Spring Security.
-    @Id // Marca este campo como o identificador único do documento no MongoDB.
-    private String id; // O ID único do usuário, geralmente gerado pelo MongoDB.
+@Document(collection = "users")
+public class User implements UserDetails {
+    @Id
+    private String id;
 
-    @Indexed(unique = true) // Cria um índice único para o campo 'username', garantindo que não haja usernames duplicados.
-    private String username; // Nome de usuário para login.
-    private String password; // Senha do usuário (será armazenada de forma codificada).
+    @Indexed(unique = true)
+    private String username;
+    private String password;
 
-    @Indexed(unique = true) // Cria um índice único para o campo 'email', garantindo que não haja emails duplicados.
-    private String email;    // Endereço de email do usuário.
+    @Indexed(unique = true)
+    private String email;
 
-    // Cria um índice único para 'steamId', mas permite múltiplos documentos com 'steamId' nulo (sparse=true).
-    // Útil se o Steam ID for opcional mas precisar ser único quando fornecido.
-    @Indexed(unique = true, sparse = true) //
-    private String steamId;  // ID do usuário na plataforma Steam (opcional).
+    @Indexed(unique = true, sparse = true)
+    private String steamId;
 
-    private List<String> roles; // Lista de papéis/perfis do usuário no sistema (ex: "ROLE_USER", "ROLE_ADMIN").
+    private List<String> roles;
 
-    /**
-     * Construtor padrão.
-     * Necessário para frameworks como Spring Data MongoDB e Jackson (para desserialização JSON).
-     */
-    public User() { //
+    public User() {
     }
 
     /**
@@ -66,13 +60,11 @@ public class User implements UserDetails { // A classe User implementa UserDetai
      */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() { //
-        // Se a lista de roles for nula, retorna uma lista vazia de autoridades.
         if (this.roles == null) {
-            return List.of(); // Ou Collections.emptyList() para compatibilidade com Java mais antigo.
+            return List.of();
         }
-        // Converte a lista de Strings (nomes dos papéis) para uma lista de SimpleGrantedAuthority.
         return this.roles.stream()
-                .map(SimpleGrantedAuthority::new) // Equivalente a role -> new SimpleGrantedAuthority(role)
+                .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }
 
@@ -130,21 +122,13 @@ public class User implements UserDetails { // A classe User implementa UserDetai
         return true; // Por padrão, os usuários são habilitados. Pode ser implementada lógica customizada aqui.
     }
 
-    // --- Getters e Setters para os campos específicos da classe User ---
-    // (getUsername e getPassword já são fornecidos pela implementação de UserDetails)
 
     public String getId() { return id; } //
     public void setId(String id) { this.id = id; } //
-
-    // setUsername é necessário se o username puder ser alterado após a criação.
     public void setUsername(String username) { this.username = username; } //
-
-    // setPassword é necessário para definir a senha (geralmente codificada pelo serviço).
     public void setPassword(String password) { this.password = password; } //
-
     public String getEmail() { return email; } //
     public void setEmail(String email) { this.email = email; } //
-
     public String getSteamId() { return steamId; } //
     public void setSteamId(String steamId) { this.steamId = steamId; } //
 

@@ -25,9 +25,9 @@ import io.github.cdimascio.dotenv.Dotenv;
 		)
 )
 @SecurityScheme(
-		name = "basicAuth", // Um nome para este esquema de segurança
-		type = SecuritySchemeType.HTTP, // Tipo de esquema: HTTP
-		scheme = "basic" // Esquema HTTP específico: basic
+		name = "basicAuth",
+		type = SecuritySchemeType.HTTP,
+		scheme = "basic"
 )
 public class GameSyncApiApplication {
 

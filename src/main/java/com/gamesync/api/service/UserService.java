@@ -20,14 +20,11 @@ import java.util.Optional;    // Contêiner que pode ou não conter um valor nã
  * Isso inclui registro, atualização, exclusão e busca de usuários,
  * além de interações com o contexto de segurança do Spring.
  */
-@Service // Anotação que marca esta classe como um Bean de serviço do Spring.
+@Service
 public class UserService {
 
-    // Dependência do repositório de usuários para acesso aos dados.
     private final UserRepository userRepository;
-    // Dependência para codificar senhas antes de salvá-las.
     private final PasswordEncoder passwordEncoder;
-    // Dependência do serviço de jogos, para operações como excluir jogos de um usuário.
     private final GameService gameService;
 
     /**
@@ -52,13 +49,10 @@ public class UserService {
      * @throws IllegalStateException Se nenhum usuário estiver autenticado ou o tipo do principal for inválido.
      */
     private User getAuthenticatedUserInternal() {
-        // Obtém o objeto Authentication do contexto de segurança.
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // Verifica se há uma autenticação válida e se o principal (usuário) é uma instância da nossa classe User.
         if (authentication == null || !authentication.isAuthenticated() || !(authentication.getPrincipal() instanceof User)) {
             throw new IllegalStateException("Nenhum usuário autenticado encontrado ou tipo de principal inválido.");
         }
-        // Converte e retorna o principal para o tipo User.
         return (User) authentication.getPrincipal();
     }
 
@@ -69,35 +63,26 @@ public class UserService {
      * @throws DuplicateResourceException Se o nome de usuário, email ou Steam ID já existirem.
      */
     public User registerUser(UserRegistrationDTO registrationDTO) {
-        // Verifica se o nome de usuário já está em uso.
         if (userRepository.findByUsername(registrationDTO.getUsername()).isPresent()) {
             throw new DuplicateResourceException("Username '" + registrationDTO.getUsername() + "' já existe.");
         }
-        // Verifica se o email já está registrado.
         if (userRepository.findByEmail(registrationDTO.getEmail()).isPresent()) {
             throw new DuplicateResourceException("Email '" + registrationDTO.getEmail() + "' já registrado.");
         }
-        // Verifica se o Steam ID (se fornecido) já está registrado.
         if (registrationDTO.getSteamId() != null && !registrationDTO.getSteamId().isBlank() &&
                 userRepository.findBySteamId(registrationDTO.getSteamId()).isPresent()) {
             throw new DuplicateResourceException("Steam ID '" + registrationDTO.getSteamId() + "' já registrado.");
         }
 
-        // Cria uma nova instância de User.
         User newUser = new User();
-        // Define os campos do novo usuário com base nos dados do DTO.
         newUser.setUsername(registrationDTO.getUsername());
         newUser.setEmail(registrationDTO.getEmail());
-        // Codifica a senha antes de salvá-la.
         newUser.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
-        // Define o Steam ID se ele foi fornecido.
         if (registrationDTO.getSteamId() != null && !registrationDTO.getSteamId().isBlank()) {
             newUser.setSteamId(registrationDTO.getSteamId());
         }
-        // Atribui a role padrão "ROLE_USER" para novos usuários.
         newUser.setRoles(Collections.singletonList("ROLE_USER"));
 
-        // Salva o novo usuário no banco de dados.
         return userRepository.save(newUser);
     }
 
@@ -111,20 +96,15 @@ public class UserService {
      * @throws DuplicateResourceException Se o novo nome de usuário ou email já estiverem em uso por outro usuário.
      */
     public Optional<User> updateUser(String userId, UserUpdateDTO userUpdateDTO) {
-        // Obtém o usuário autenticado.
         User authenticatedUser = getAuthenticatedUserInternal();
 
-        // Garante que o usuário autenticado só pode atualizar seu próprio perfil.
         if (!authenticatedUser.getId().equals(userId)) {
             throw new ResourceNotFoundException("Acesso negado para atualizar este usuário ou usuário não encontrado.");
         }
 
-        // Busca o usuário existente pelo ID.
         return userRepository.findById(userId)
-                .map(existingUser -> { // Se o usuário existir, aplica as atualizações.
-                    // Atualiza o nome de usuário se fornecido e diferente do atual.
+                .map(existingUser -> {
                     if (userUpdateDTO.getUsername() != null && !userUpdateDTO.getUsername().isBlank()) {
-                        // Verifica se o novo nome de usuário já existe (e não é o nome de usuário atual).
                         if (!existingUser.getUsername().equalsIgnoreCase(userUpdateDTO.getUsername()) &&
                                 userRepository.findByUsername(userUpdateDTO.getUsername()).isPresent()) {
                             throw new DuplicateResourceException("Novo nome de usuário '" + userUpdateDTO.getUsername() + "' já existe.");
@@ -132,9 +112,7 @@ public class UserService {
                         existingUser.setUsername(userUpdateDTO.getUsername());
                     }
 
-                    // Atualiza o email se fornecido e diferente do atual.
                     if (userUpdateDTO.getEmail() != null && !userUpdateDTO.getEmail().isBlank()) {
-                        // Verifica se o novo email já existe (e não é o email atual).
                         if (!existingUser.getEmail().equalsIgnoreCase(userUpdateDTO.getEmail()) &&
                                 userRepository.findByEmail(userUpdateDTO.getEmail()).isPresent()) {
                             throw new DuplicateResourceException("Novo email '" + userUpdateDTO.getEmail() + "' já registrado.");
@@ -142,11 +120,9 @@ public class UserService {
                         existingUser.setEmail(userUpdateDTO.getEmail());
                     }
 
-                    // Atualiza a senha se uma nova senha for fornecida.
                     if (userUpdateDTO.getNewPassword() != null && !userUpdateDTO.getNewPassword().isBlank()) {
                         existingUser.setPassword(passwordEncoder.encode(userUpdateDTO.getNewPassword()));
                     }
-                    // Salva as alterações no usuário.
                     return userRepository.save(existingUser);
                 });
     }
@@ -159,25 +135,20 @@ public class UserService {
      * @return true se o usuário foi excluído com sucesso, false caso contrário (ex: usuário não encontrado).
      * @throws ResourceNotFoundException Se o usuário autenticado tentar excluir outro usuário.
      */
-    @Transactional // Garante que a exclusão do usuário e seus jogos seja uma operação atômica.
+    @Transactional
     public boolean deleteUser(String userId) {
-        // Obtém o usuário autenticado.
         User authenticatedUser = getAuthenticatedUserInternal();
 
-        // Garante que o usuário autenticado só pode excluir sua própria conta.
         if (!authenticatedUser.getId().equals(userId)) {
             throw new ResourceNotFoundException("Acesso negado para excluir este usuário ou usuário não encontrado.");
         }
 
-        // Verifica se o usuário existe antes de tentar excluir.
         if (userRepository.existsById(userId)) {
-            // Antes de excluir o usuário, exclui todos os jogos associados a ele.
             gameService.deleteAllGamesByUserId(userId);
-            // Exclui o usuário do banco de dados.
             userRepository.deleteById(userId);
-            return true; // Retorna true indicando sucesso.
+            return true;
         }
-        return false; // Retorna false se o usuário não foi encontrado.
+        return false;
     }
 
     /**
@@ -198,13 +169,11 @@ public class UserService {
      */
     public Optional<User> findById(String id) {
         User authenticatedUser = getAuthenticatedUserInternal();
-        // Verifica se o ID solicitado é do próprio usuário autenticado OU se o usuário autenticado é ADMIN.
         if (authenticatedUser.getId().equals(id) ||
                 (authenticatedUser.getAuthorities() != null &&
                         authenticatedUser.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN")))) {
             return userRepository.findById(id);
         }
-        // Se não tiver permissão, lança exceção.
         throw new ResourceNotFoundException("Usuário não encontrado ou acesso negado.");
     }
 

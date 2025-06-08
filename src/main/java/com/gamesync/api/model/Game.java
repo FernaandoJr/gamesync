@@ -3,9 +3,9 @@ package com.gamesync.api.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-import java.util.Date;     // Para representar datas, como a data de adição do jogo.
-import java.util.HashSet;  // Implementação de Set para coleções como gêneros, tags e plataformas.
-import java.util.Set;      // Interface para coleções que não permitem elementos duplicados.
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entidade que representa um jogo no sistema GameSync.
@@ -13,29 +13,28 @@ import java.util.Set;      // Interface para coleções que não permitem elemen
  * Contém informações detalhadas sobre cada jogo, como nome, desenvolvedor,
  * status, horas jogadas, e associação com um usuário.
  */
-@Document(collection = "games") // Anotação do Spring Data MongoDB que especifica o nome da coleção no banco.
+@Document(collection = "games")
 public class Game {
-    @Id // Marca este campo como o identificador único do documento no MongoDB.
-    private String id; // O ID único do jogo, gerado pelo MongoDB ou atribuído.
-    private String name; // Nome do jogo.
-    private String description; // Descrição textual do jogo.
-    private String developer; // Nome do desenvolvedor do jogo.
+    @Id
+    private String id;
+    private String name;
+    private String description;
+    private String developer;
+    private String userId;
 
-    private String userId; // ID do usuário ao qual este jogo pertence. Usado para associar jogos a usuários.
+    @Field("hours_played")
+    private Integer hoursPlayed;
+    private boolean favorite;
+    private Set<String> genres = new HashSet<>();
+    private Set<String> tags = new HashSet<>();
+    private Set<String> platforms = new HashSet<>();
+    private GameStatus status;
+    private GameSource source;
 
-    @Field("hours_played") // Mapeia este campo Java para o campo "hours_played" no documento MongoDB.
-    private Integer hoursPlayed; // Número de horas jogadas. Integer permite valor nulo.
-    private boolean favorite; // Indica se o jogo é marcado como favorito pelo usuário.
-    private Set<String> genres = new HashSet<>(); // Coleção de gêneros do jogo (ex: RPG, Ação). Inicializado para evitar NullPointerException.
-    private Set<String> tags = new HashSet<>(); // Coleção de tags associadas ao jogo (ex: Mundo Aberto, Multiplayer).
-    private Set<String> platforms = new HashSet<>(); // Coleção de plataformas em que o jogo está disponível ou é jogado (ex: PC, PlayStation).
-    private GameStatus status; // Status atual do jogo na biblioteca do usuário (ex: PLAYING, COMPLETED).
-    private GameSource source; // Origem da informação do jogo (ex: STEAM, MANUAL).
+    @Field("added_at")
+    private Date addedAt;
 
-    @Field("added_at") // Mapeia este campo Java para o campo "added_at" no documento MongoDB.
-    private Date addedAt; // Data e hora em que o jogo foi adicionado à biblioteca do usuário.
-
-    private Steam steam; // Objeto embutido contendo detalhes específicos do Steam, se a origem for STEAM.
+    private Steam steam;
 
     /**
      * Construtor padrão.
@@ -43,9 +42,6 @@ public class Game {
      */
     public Game() { //
     }
-
-    // --- Getters e Setters ---
-    // Métodos padrão para acessar e modificar os campos da classe.
 
     public String getId() { //
         return id;
@@ -95,7 +91,7 @@ public class Game {
         this.hoursPlayed = hoursPlayed;
     }
 
-    public boolean isFavorite() { // Convenção de getter para boolean: "is" + NomeDoCampo.
+    public boolean isFavorite() {
         return favorite;
     }
 
@@ -166,7 +162,6 @@ public class Game {
      */
     @Override
     public String toString() { //
-        // A representação em String pode ser expandida para incluir mais campos relevantes.
         return "Game{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +

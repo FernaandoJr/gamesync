@@ -1,20 +1,20 @@
 // File: src/main/java/com/gamesync/api/config/SecurityConfig.java
 package com.gamesync.api.config;
 
-import com.gamesync.api.service.CustomUserDetailsService; // Nosso serviço que busca usuários para o Spring Security.
-import org.springframework.context.annotation.Bean; // Anotação para declarar um método que produz um bean gerenciado pelo Spring.
-import org.springframework.context.annotation.Configuration; // Indica que a classe declara um ou mais métodos @Bean e pode ser processada pelo container Spring.
+import com.gamesync.api.service.CustomUserDetailsService;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager; // Interface central para processar uma requisição de autenticação.
-import org.springframework.security.authentication.ProviderManager;      // Implementação comum de AuthenticationManager que delega para uma lista de AuthenticationProviders.
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider; // Um AuthenticationProvider que recupera detalhes do usuário de um UserDetailsService.
-import org.springframework.security.config.annotation.web.builders.HttpSecurity; // Permite configurar a segurança baseada na web (regras de firewall).
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity; // Habilita o suporte à segurança web do Spring Security.
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer; // Classe base para configurar aspectos do HttpSecurity de forma concisa (usada para desabilitar CSRF).
-import org.springframework.security.config.http.SessionCreationPolicy; // Define políticas para criação de sessão (ex: STATELESS).
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder; // Implementação de PasswordEncoder que usa o algoritmo BCrypt.
-import org.springframework.security.crypto.password.PasswordEncoder;   // Interface para codificação e verificação de senhas.
-import org.springframework.security.web.SecurityFilterChain;           // Interface que define uma cadeia de filtros aplicada a requisições HTTP.
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Classe de configuração para o Spring Security.
@@ -22,8 +22,8 @@ import org.springframework.security.web.SecurityFilterChain;           // Interf
  * Habilita a segurança web e configura a cadeia de filtros de segurança,
  * o provedor de autenticação, e o codificador de senhas.
  */
-@Configuration // Marca esta classe como uma fonte de definições de bean.
-@EnableWebSecurity // Habilita a integração do Spring Security com o Spring MVC.
+@Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     /**
@@ -33,9 +33,9 @@ public class SecurityConfig {
      * antes de serem salvas no banco de dados e verificadas durante o login.
      * @return Uma instância de BCryptPasswordEncoder.
      */
-    @Bean // Este método produz um bean gerenciado pelo Spring.
+    @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // Retorna uma implementação de PasswordEncoder.
+        return new BCryptPasswordEncoder();
     }
 
     /**
@@ -50,13 +50,12 @@ public class SecurityConfig {
      */
     @Bean //
     public AuthenticationManager authenticationManager(
-            CustomUserDetailsService userDetailsService, // Injetado pelo Spring.
-            PasswordEncoder passwordEncoder             // Injetado pelo Spring.
+            CustomUserDetailsService userDetailsService,
+            PasswordEncoder passwordEncoder
     ) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService); // Define o serviço que carrega o usuário.
-        authenticationProvider.setPasswordEncoder(passwordEncoder); // Define o codificador de senhas.
-        // ProviderManager é uma implementação de AuthenticationManager que delega para uma lista de providers.
+        authenticationProvider.setUserDetailsService(userDetailsService);
+        authenticationProvider.setPasswordEncoder(passwordEncoder);
         return new ProviderManager(authenticationProvider); //
     }
 
@@ -78,7 +77,6 @@ public class SecurityConfig {
                 // ou HTTP Basic, geralmente é desabilitado.
                 .csrf(AbstractHttpConfigurer::disable) //
 
-                // Configura as regras de autorização para as requisições HTTP.
                 .authorizeHttpRequests(authorize -> authorize //
                         // Permite todas as requisições HTTP POST para o endpoint "/users/register"
                         // sem necessidade de autenticação. Isso é essencial para permitir que novos usuários se registrem.
