@@ -7,7 +7,7 @@
 * [Ian Camargo](https://github.com/IanCamargo)
 * [Luis Felipe Piasentini](https://github.com/LuisPiasentini)
 * Marcus Fernandes
-
+ 
 ### 1. Descrição do Projeto
 
 A GameSync API é uma aplicação RESTful desenvolvida em Java com Spring Boot, que oferece uma solução centralizada para que usuários possam gerenciar suas bibliotecas de jogos digitais. Atuando como uma plataforma unificada, ela permite que cada usuário cadastre, organize e acompanhe seus jogos, seja manualmente ou integrando informações de plataformas como o Steam. Este projeto demonstra a aplicação de conceitos de Programação Orientada a Objetos (POO), arquitetura em camadas e boas práticas de desenvolvimento de APIs.
