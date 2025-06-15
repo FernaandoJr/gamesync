@@ -14,6 +14,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Classe de configuração para o Spring Security.
@@ -73,25 +79,58 @@ public class SecurityConfig {
      * @return A cadeia de filtros de segurança construída.
      * @throws Exception Se ocorrer um erro durante a configuração.
      */
+
+    /**
+     * Define a cadeia de filtros de segurança (SecurityFilterChain).
+     * Esta é a configuração central da segurança web, onde se define quais requisições
+     * são permitidas ou bloqueadas, como a autenticação é tratada, gerenciamento de sessão, etc.
+     * @param http O objeto HttpSecurity usado para construir a cadeia de filtros.
+     * @return A cadeia de filtros de segurança construída.
+     * @throws Exception Se ocorrer um erro durante a configuração.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Adiciona a configuração CORS
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
-                                "/webjars/**" // Geralmente necessário para recursos estáticos do Swagger UI
-                        ).permitAll() //
-                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll() // Permite registro sem autenticação
-                        .anyRequest().authenticated() // Todas as outras requisições exigem autenticação
+                                "/webjars/**"
+                        ).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/register").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasic -> httpBasic
-                        .authenticationEntryPoint(customAuthenticationEntryPoint) // Usa nosso entry point customizado
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
+    }
+
+    /**
+     * Configura as políticas de CORS.
+     * Permite requisições da origem "http://localhost:3000", define os métodos HTTP permitidos
+     * e permite todos os cabeçalhos.
+     * @return Uma instância de CorsConfigurationSource.
+     */
+    @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Permite a origem do seu frontend.
+        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        // Permite os métodos HTTP comuns para uma API REST.
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        // Permite todos os cabeçalhos nas requisições.
+        configuration.setAllowedHeaders(List.of("*"));
+        // Permite o envio de credenciais (como cookies ou cabeçalhos de autenticação) em requisições cross-origin.
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        // Aplica esta configuração CORS a todos os caminhos (endpoints) da sua API.
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }

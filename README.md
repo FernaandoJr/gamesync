@@ -1,176 +1,365 @@
 # GameSync API
 
-## Projeto de POO: Gerenciamento de Biblioteca de Jogos
+## Gerenciamento de Biblioteca de Jogos
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-17-orange" alt="Java 17"/>
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.2.5-green" alt="Spring Boot 3.2.5"/>
+  <img src="https://img.shields.io/badge/MongoDB-Database-brightgreen" alt="MongoDB"/>
+  <img src="https://img.shields.io/badge/RESTful-API-blue" alt="RESTful API"/>
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="MIT License"/>
+</p>
 
 ### Integrantes do Projeto:
-* [Fernando Divino de Moraes Júnior](https://github.com/FernaandoJr)
-* [Ian Camargo](https://github.com/IanCamargo)
-* [Luis Felipe Piasentini](https://github.com/LuisPiasentini)
-* Marcus Fernandes
 
-### 1. Descrição do Projeto
+-   [Fernando Divino de Moraes Júnior](https://github.com/FernaandoJr)
+-   [Ian Camargo](https://github.com/IanCamargo)
+-   [Luis Felipe Piasentini](https://github.com/LuisPiasentini)
+-   [Marcus Fernandes](https://github.com/marcusfernandes)
 
-A GameSync API é uma aplicação RESTful desenvolvida em Java com Spring Boot, que oferece uma solução centralizada para que usuários possam gerenciar suas bibliotecas de jogos digitais. Atuando como uma plataforma unificada, ela permite que cada usuário cadastre, organize e acompanhe seus jogos, seja manualmente ou integrando informações de plataformas como o Steam. Este projeto demonstra a aplicação de conceitos de Programação Orientada a Objetos (POO), arquitetura em camadas e boas práticas de desenvolvimento de APIs.
+## 📋 Sumário
 
-### 2. Funcionalidades Principais
+-   [Descrição](#-descrição)
+-   [Funcionalidades](#-funcionalidades)
+-   [Arquitetura](#-arquitetura)
+-   [Endpoints da API](#-endpoints-da-api)
+-   [Tecnologias Utilizadas](#-tecnologias-utilizadas)
+-   [Instalação e Configuração](#-instalação-e-configuração)
+-   [Documentação da API](#-documentação-da-api)
+-   [Contribuição](#-contribuição)
+-   [Licença](#-licença)
 
-A GameSync API oferece as seguintes funcionalidades, organizadas por entidades e operações CRUD:
+## 🎮 Descrição
 
-* **Gerenciamento de Usuários (`/users`)**:
-    * **Registro de Novos Usuários**: Criação de contas com validação de dados (username, email, senha, Steam ID opcional).
-    * **Autenticação**: Autenticação de usuários via HTTP Basic para acesso a endpoints protegidos.
-    * **Consulta de Perfil**: Visualização do perfil do usuário autenticado (`/users/me`).
-    * **Consulta por ID**: Busca de perfis de usuário por ID (com restrições de acesso: apenas o próprio usuário ou ADMIN).
-    * **Atualização de Dados**: Modificação de informações do perfil (username, email, senha).
-    * **Exclusão de Conta**: Remoção completa da conta do usuário e de todos os jogos associados.
+A GameSync API é uma aplicação RESTful robusta desenvolvida em Java com Spring Boot, que oferece uma solução centralizada para que usuários possam gerenciar suas bibliotecas de jogos digitais. Atuando como uma plataforma unificada, ela permite que cada usuário cadastre, organize e acompanhe seus jogos de forma personalizada.
 
-* **Gerenciamento de Jogos (`/games`)**:
-    * **Adição de Jogos**: Cadastro de novos jogos com detalhes como nome, desenvolvedor, descrição, status (jogando, completado, abandonado, lista de desejos), horas jogadas, favoritismo, gêneros, tags e plataformas.
-    * **Origem do Jogo**: Suporte para jogos adicionados manualmente ou com informações específicas do Steam (App ID, URL da loja, etc.).
-    * **Listagem de Jogos**: Visualização da biblioteca completa de jogos do usuário autenticado.
-    * **Consulta por ID**: Busca de detalhes de um jogo específico por ID, garantindo que pertença ao usuário.
-    * **Atualização de Jogos**: Modificação de qualquer informação de um jogo existente na biblioteca do usuário.
-    * **Exclusão de Jogos**: Remoção de jogos da biblioteca do usuário.
+Esta API utiliza conceitos modernos de design e desenvolvimento, incluindo Programação Orientada a Objetos (POO), arquitetura em camadas, e segue as melhores práticas de desenvolvimento de APIs RESTful. O projeto implementa autenticação segura, validação de dados e manipulação adequada de erros para garantir uma experiência de usuário consistente e confiável.
 
-### 3. Arquitetura e Princípios de POO Aplicados
+## 🚀 Funcionalidades
 
-A arquitetura da GameSync API segue o padrão **MVC (Model-View-Controller)** adaptado para APIs REST (Controller-Service-Repository-Model), com forte aderência aos princípios de POO.
+A GameSync API oferece um conjunto abrangente de funcionalidades para gerenciar bibliotecas de jogos, organizadas por entidades e operações CRUD:
 
-* **Camadas da Aplicação**:
-    * **Controllers (`com.gamesync.api.controller`)**: Responsáveis por receber as requisições HTTP, delegar a lógica de negócios aos serviços e retornar as respostas HTTP. Mapeiam as URLs e os métodos HTTP.
-    * **Services (`com.gamesync.api.service`)**: Contêm a lógica de negócios da aplicação. Coordenam as operações entre os repositórios e aplicam regras de negócio. Implementam a abstração da complexidade do domínio.
-    * **Repositories (`com.gamesync.api.repository`)**: Interfaces que definem operações de acesso a dados (CRUD) para as entidades. O Spring Data MongoDB implementa essas interfaces em tempo de execução, abstraindo os detalhes de persistência.
-    * **Models (`com.gamesync.api.model`)**: Representam as entidades de domínio (ex: `User`, `Game`, `Steam`). São classes POJO (Plain Old Java Objects) que encapsulam os dados e seu comportamento.
-    * **DTOs (`com.gamesync.api.dto`)**: Data Transfer Objects. Classes usadas para transportar dados entre as camadas da aplicação (especialmente entre Controller e Service/Requisições HTTP). Garantem que apenas os dados necessários sejam expostos e validados.
+### 👤 Gerenciamento de Usuários (`/users`)
 
-* **Conceitos de POO em Destaque**:
-    * **Encapsulamento**: Dados das entidades (Models) são protegidos por modificadores de acesso (`private`) e acessados/modificados via métodos `getters` e `setters`.
-    * **Herança/Implementação de Interfaces**: A classe `User` implementa a interface `UserDetails` do Spring Security, demonstrando herança de contrato para integrar com o framework de segurança.
-    * **Polimorfismo**: Utilizado indiretamente pelo Spring com interfaces como `MongoRepository` e `UserDetailsService`, onde diferentes implementações podem ser "plugadas".
-    * **Abstração**: As camadas de serviço e repositório abstraem a complexidade da lógica de negócios e da persistência de dados, respectivamente, do controller.
-    * **Injeção de Dependência**: O Spring Framework é amplamente utilizado para gerenciar as dependências entre os componentes (controllers recebem serviços, serviços recebem repositórios), promovendo baixo acoplamento e alta coesão.
-    * **Tratamento de Exceções**: Uso de exceções customizadas (`ResourceNotFoundException`, `DuplicateResourceException`, `BadRequestException`) e um `GlobalExceptionHandler` para centralizar e padronizar as respostas de erro, aplicando o princípio de *fail-fast* e robustez.
+-   **Registro de Novos Usuários**
 
-### 4. Endpoints da API
+    -   Criação de contas com validação completa de dados (username, email, senha)
+    -   Validação para prevenir duplicatas de username e email
+    -   Criptografia segura de senhas
+
+-   **Autenticação e Autorização**
+
+    -   Sistema de autenticação via HTTP Basic
+    -   Controle de acesso baseado em funções (ROLE_USER, ROLE_ADMIN)
+    -   Tokens de autenticação para sessões seguras
+
+-   **Gerenciamento de Perfil**
+    -   Visualização do perfil do usuário autenticado (`/users/me`)
+    -   Busca de perfis por ID (com restrições de acesso)
+    -   Atualização de dados do perfil (username, email, senha)
+    -   Exclusão de conta com remoção em cascata dos dados associados
+
+### 🎮 Gerenciamento de Jogos (`/games`)
+
+-   **Biblioteca Personalizada**
+    -   Adição de jogos com informações detalhadas:
+        -   Nome, desenvolvedor, descrição
+        -   Status (jogando, completado, abandonado, lista de desejos)
+        -   Horas jogadas, marcação de favoritos
+        -   Gêneros, tags e plataformas personalizáveis
+    -   Origem do jogo (adição manual)
+-   **Organização e Controle**
+    -   Listagem completa da biblioteca pessoal
+    -   Busca de detalhes de jogos específicos
+    -   Atualização de informações dos jogos
+    -   Exclusão de jogos da biblioteca
+
+## 🏗️ Arquitetura
+
+A GameSync API segue uma arquitetura moderna em camadas, implementando o padrão **MVC (Model-View-Controller)** adaptado para APIs REST, com forte aderência aos princípios SOLID e de Programação Orientada a Objetos.
+
+### 📚 Camadas da Aplicação
+
+<p align="center">
+  <img src="https://i.imgur.com/vFGZeKs.png" alt="Arquitetura em Camadas" width="600"/>
+</p>
+
+-   **Controllers** (`com.gamesync.api.controller`)
+
+    -   Recebem e respondem às requisições HTTP
+    -   Delegam processamento para a camada de serviços
+    -   Gerenciam status codes e headers HTTP
+    -   Mapeiam endpoints e métodos HTTP (GET, POST, PUT, DELETE)
+
+-   **Services** (`com.gamesync.api.service`)
+
+    -   Implementam a lógica de negócios da aplicação
+    -   Orquestram interações entre múltiplos repositórios
+    -   Aplicam regras de validação e manipulação de dados
+    -   Gerenciam transações e consistência de dados
+
+-   **Repositories** (`com.gamesync.api.repository`)
+
+    -   Interfaces para operações CRUD nas entidades
+    -   Abstraem detalhes de persistência e queries
+    -   Implementação automática pelo Spring Data MongoDB
+    -   Fornecem métodos personalizados de busca
+
+-   **Models** (`com.gamesync.api.model`)
+
+    -   Entidades de domínio (`User`, `Game`)
+    -   Classes POJO com encapsulamento de dados
+    -   Mapeamento para documentos MongoDB
+    -   Implementação de interfaces de framework (ex: `UserDetails`)
+
+-   **DTOs** (`com.gamesync.api.dto`)
+
+    -   Objetos de transferência de dados entre camadas
+    -   Validação de entrada com Jakarta Bean Validation
+    -   Separação entre modelos de domínio e contratos de API
+    -   Versionamento implícito da API
+
+-   **Exception Handling** (`com.gamesync.api.exception`)
+    -   Exceções customizadas por tipo de erro
+    -   Manipulador global de exceções para respostas HTTP consistentes
+    -   Mensagens de erro padronizadas
+    -   Logs detalhados para diagnóstico
+
+### 🧩 Princípios de POO Aplicados
+
+-   **Encapsulamento**
+
+    -   Atributos privados com getters e setters controlados
+    -   Validação interna de estado dos objetos
+    -   Ocultação da implementação interna dos objetos
+
+-   **Herança e Interfaces**
+
+    -   Implementação de interfaces do Spring (`UserDetails`, `MongoRepository`)
+    -   Extensão de classes base para funcionalidades comuns
+    -   Separação de contrato e implementação
+
+-   **Polimorfismo**
+
+    -   Implementações substituíveis de interfaces
+    -   Comportamento específico por tipo de entidade
+    -   Flexibilidade para extensões futuras
+
+-   **Abstração**
+
+    -   Modelagem de conceitos do mundo real (User, Game)
+    -   Exposição apenas de operações relevantes
+    -   Ocultação de detalhes de implementação
+
+-   **SOLID**
+    -   **S**: Classes com responsabilidade única
+    -   **O**: Extensibilidade sem modificação
+    -   **L**: Substitutibilidade de implementações
+    -   **I**: Interfaces específicas e coesas
+    -   **D**: Dependência em abstrações
+
+## 🔌 Endpoints da API
 
 Todos os endpoints requerem **Autenticação HTTP Basic**, exceto o de registro de usuário.
 
-#### Usuários (`/users`)
+### 👤 Usuários (`/users`)
 
-* **`POST /users/register`**: Registra um novo usuário.
-    * **Descrição**: Cria uma nova conta de usuário. Não requer autenticação.
-    * **Corpo da Requisição**: `UserRegistrationDTO`
-    * **Respostas**: `201 Created` (Sucesso), `400 Bad Request` (Validação), `409 Conflict` (Usuário/Email/Steam ID duplicado).
-* **`GET /users/me`**: Retorna os detalhes do perfil do usuário autenticado.
-    * **Descrição**: Obtém os dados do usuário logado. Requer autenticação.
-    * **Respostas**: `200 OK` (Sucesso), `401 Unauthorized`.
-* **`GET /users/{id}`**: Retorna os detalhes de um usuário específico por ID.
-    * **Descrição**: Busca um usuário por ID. Apenas o próprio usuário ou ADMIN pode acessar. Requer autenticação.
-    * **Respostas**: `200 OK` (Sucesso), `401 Unauthorized`, `404 Not Found` (Usuário não encontrado ou acesso negado).
-* **`PUT /users/{id}`**: Atualiza os dados de um usuário.
-    * **Descrição**: Atualiza o perfil do usuário. Apenas o próprio usuário autenticado pode atualizar. Requer autenticação.
-    * **Corpo da Requisição**: `UserUpdateDTO`
-    * **Respostas**: `200 OK` (Sucesso), `400 Bad Request`, `401 Unauthorized`, `404 Not Found` (Falha ao atualizar ou acesso negado), `409 Conflict` (Dados duplicados).
-* **`DELETE /users/{id}`**: Exclui um usuário.
-    * **Descrição**: Remove a conta do usuário e todos os jogos associados. Apenas o próprio usuário autenticado pode excluir. Requer autenticação.
-    * **Respostas**: `200 OK` (Sucesso), `401 Unauthorized`, `404 Not Found` (Falha ao excluir ou acesso negado).
+| Método   | Endpoint          | Descrição                                 | Autenticação | Corpo da Requisição   | Respostas                                                                                |
+| -------- | ----------------- | ----------------------------------------- | ------------ | --------------------- | ---------------------------------------------------------------------------------------- |
+| `POST`   | `/users/register` | Registra um novo usuário                  | Não          | `UserRegistrationDTO` | `201` Created<br>`400` Bad Request<br>`409` Conflict                                     |
+| `GET`    | `/users/me`       | Retorna o perfil do usuário logado        | Sim          | -                     | `200` OK<br>`401` Unauthorized                                                           |
+| `GET`    | `/users/{id}`     | Retorna detalhes de um usuário específico | Sim          | -                     | `200` OK<br>`401` Unauthorized<br>`404` Not Found                                        |
+| `PUT`    | `/users/{id}`     | Atualiza dados de usuário                 | Sim          | `UserUpdateDTO`       | `200` OK<br>`400` Bad Request<br>`401` Unauthorized<br>`404` Not Found<br>`409` Conflict |
+| `DELETE` | `/users/{id}`     | Exclui um usuário                         | Sim          | -                     | `200` OK<br>`401` Unauthorized<br>`404` Not Found                                        |
 
-#### Jogos (`/games`)
+#### Estrutura do `UserRegistrationDTO`:
 
-* **`POST /games`**: Adiciona um novo jogo à biblioteca do usuário autenticado.
-    * **Descrição**: Cria um novo jogo para o usuário logado. Requer autenticação.
-    * **Corpo da Requisição**: `GameCreateDTO`
-    * **Respostas**: `201 Created` (Sucesso), `400 Bad Request`, `401 Unauthorized`, `409 Conflict` (Jogo com nome duplicado para o usuário).
-* **`GET /games`**: Lista todos os jogos da biblioteca do usuário autenticado.
-    * **Descrição**: Retorna todos os jogos do usuário logado. Requer autenticação.
-    * **Respostas**: `200 OK` (Sucesso), `401 Unauthorized`.
-* **`GET /games/{id}`**: Retorna os detalhes de um jogo específico por ID, pertencente ao usuário autenticado.
-    * **Descrição**: Busca um jogo por ID. Apenas o proprietário pode acessar. Requer autenticação.
-    * **Respostas**: `200 OK` (Sucesso), `401 Unauthorized`, `404 Not Found` (Jogo não encontrado ou acesso negado).
-* **`PUT /games/{id}`**: Atualiza os detalhes de um jogo existente, pertencente ao usuário autenticado.
-    * **Descrição**: Atualiza os dados de um jogo. Apenas o proprietário pode modificar. Requer autenticação.
-    * **Corpo da Requisição**: `GameUpdateDTO`
-    * **Respostas**: `200 OK` (Sucesso), `400 Bad Request`, `401 Unauthorized`, `404 Not Found` (Falha ao atualizar ou acesso negado), `409 Conflict` (Nome de jogo duplicado para o usuário).
-* **`DELETE /games/{id}`**: Exclui um jogo da biblioteca do usuário autenticado.
-    * **Descrição**: Remove um jogo. Apenas o proprietário pode excluir. Requer autenticação.
-    * **Respostas**: `200 OK` (Sucesso), `401 Unauthorized`, `404 Not Found` (Falha ao excluir ou acesso negado).
+```json
+{
+	"username": "example_user",
+	"email": "user@example.com",
+	"password": "securePass123"
+}
+```
 
-### 6. Tecnologias Utilizadas
+#### Estrutura do `UserUpdateDTO`:
 
-* **Linguagem**: Java 17
-* **Framework Principal**: Spring Boot 3.2.5
-* **Segurança**: Spring Security (com autenticação HTTP Basic)
-* **Acesso a Dados**: Spring Data MongoDB
-* **Banco de Dados**: MongoDB
-* **API Web**: Spring MVC (REST Controllers)
-* **Validação**: Jakarta Bean Validation
-* **Documentação da API**: Springdoc OpenAPI (Swagger UI)
-* **Build e Gerenciamento de Dependências**: Apache Maven
-* **Gerenciamento de Variáveis de Ambiente (Local)**: `java-dotenv` (opcional)
+```json
+{
+	"username": "new_username",
+	"email": "new_email@example.com",
+	"newPassword": "newSecurePass456"
+}
+```
 
-### 7. Pré-requisitos
+### 🎮 Jogos (`/games`)
 
-Antes de executar o projeto, certifique-se de ter o seguinte instalado:
+| Método   | Endpoint      | Descrição                   | Autenticação | Corpo da Requisição | Respostas                                                                                |
+| -------- | ------------- | --------------------------- | ------------ | ------------------- | ---------------------------------------------------------------------------------------- |
+| `POST`   | `/games`      | Adiciona um novo jogo       | Sim          | `GameCreateDTO`     | `201` Created<br>`400` Bad Request<br>`401` Unauthorized<br>`409` Conflict               |
+| `GET`    | `/games`      | Lista biblioteca do usuário | Sim          | -                   | `200` OK<br>`401` Unauthorized                                                           |
+| `GET`    | `/games/{id}` | Retorna detalhes de um jogo | Sim          | -                   | `200` OK<br>`401` Unauthorized<br>`404` Not Found                                        |
+| `PUT`    | `/games/{id}` | Atualiza um jogo            | Sim          | `GameUpdateDTO`     | `200` OK<br>`400` Bad Request<br>`401` Unauthorized<br>`404` Not Found<br>`409` Conflict |
+| `DELETE` | `/games/{id}` | Remove um jogo              | Sim          | -                   | `200` OK<br>`401` Unauthorized<br>`404` Not Found                                        |
 
-* JDK 17 ou superior.
-* Apache Maven 3.6.x ou superior.
-* MongoDB Server (versão 4.x ou superior recomendada).
+#### Estrutura do `GameCreateDTO`:
 
-### 8. Configuração e Execução do Projeto
+```json
+{
+	"name": "The Legend of Zelda: Breath of the Wild",
+	"description": "Action-adventure game set in an open world.",
+	"developer": "Nintendo EPD",
+	"hoursPlayed": 120,
+	"favorite": true,
+	"genres": ["Action", "Adventure", "Open World"],
+	"tags": ["Nintendo", "Fantasy", "RPG Elements"],
+	"platforms": ["Nintendo Switch", "Wii U"],
+	"status": "COMPLETED",
+	"source": "MANUAL"
+}
+```
 
-#### 8.1. Clonar o Repositório
+#### Estrutura do `GameUpdateDTO`:
+
+```json
+{
+	"name": "The Legend of Zelda: BotW",
+	"hoursPlayed": 150,
+	"status": "COMPLETED",
+	"favorite": true,
+	"tags": ["Nintendo", "Fantasy", "RPG Elements", "Masterpiece"]
+}
+```
+
+## 🛠️ Tecnologias Utilizadas
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=java&logoColor=white" alt="Java 17" />
+  <img src="https://img.shields.io/badge/Spring_Boot-3.2.5-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white" alt="Spring Boot" />
+  <img src="https://img.shields.io/badge/MongoDB-4.4+-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white" alt="Spring Security" />
+  <img src="https://img.shields.io/badge/Maven-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white" alt="Maven" />
+  <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
+</p>
+
+### Backend
+
+-   **Java 17**: Linguagem de programação moderna com recursos avançados
+-   **Spring Boot 3.2.5**: Framework para desenvolvimento simplificado de aplicações Java
+-   **Spring Security**: Framework para autenticação e controle de acesso
+-   **Spring Data MongoDB**: Abstração para acesso a dados MongoDB
+-   **MongoDB**: Banco de dados NoSQL orientado a documentos
+-   **Spring MVC**: Controladores REST para a API web
+-   **Jakarta Bean Validation**: Validação declarativa de dados
+-   **Springdoc OpenAPI 2.1**: Documentação automatizada da API (Swagger UI)
+-   **Apache Maven**: Gerenciamento de dependências e build
+
+### Ferramentas de Desenvolvimento
+
+-   **Spring Initializr**: Configuração inicial do projeto
+-   **Maven Wrapper**: Execução consistente em diferentes ambientes
+-   **java-dotenv**: Gerenciamento de variáveis de ambiente locais
+
+## 🔧 Instalação e Configuração
+
+### Pré-requisitos
+
+<p align="center">
+  <img src="https://img.shields.io/badge/JDK-17+-007396?style=for-the-badge&logo=java&logoColor=white" alt="JDK 17+" />
+  <img src="https://img.shields.io/badge/Maven-3.6+-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white" alt="Maven 3.6+" />
+  <img src="https://img.shields.io/badge/MongoDB-4.4+-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB 4.4+" />
+</p>
+
+Antes de iniciar, certifique-se de ter instalado:
+
+-   **JDK 17** ou superior
+-   **Apache Maven 3.6.x** ou superior
+-   **MongoDB Server** (versão 4.4+ recomendada)
+
+### Passos para Execução
+
+#### 1. Clone o Repositório
 
 ```bash
 git clone https://github.com/FernaandoJr/gamesync.git
 cd gamesync
-````
+```
 
-#### 8.2. Configurar Variáveis de Ambiente
+#### 2. Configure o Banco de Dados
 
-A aplicação espera uma URI de conexão com o MongoDB. Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+Crie um arquivo `.env` na raiz do projeto:
 
 ```env
 SPRING_DATA_MONGODB_URI=mongodb://localhost:27017/gamesync_db
 ```
 
-Substitua `mongodb://localhost:27017/gamesync_db` pela sua string de conexão do MongoDB, se for diferente. Caso a variável de ambiente não seja definida, a aplicação usará a URI padrão `mongodb://localhost:27017/gamesync_refactored` conforme configurado no `application.properties`.
+> 💡 **Dica:** Substitua a URI conforme a configuração do seu ambiente MongoDB. Se a variável não estiver definida, a aplicação usará a URI padrão `mongodb://localhost:27017/gamesync`.
 
-#### 8.3. Construir o Projeto
-
-Use o Maven para construir o projeto e baixar todas as dependências:
+#### 3. Construa o Projeto
 
 ```bash
-mvn clean install
+./mvnw clean install
 ```
 
-#### 8.4. Executar a Aplicação
+#### 4. Execute a Aplicação
 
-Você pode executar a aplicação usando o plugin do Maven para Spring Boot:
+**Usando Maven:**
 
 ```bash
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
-Ou, após construir o JAR com `mvn install`, você pode executá-lo diretamente:
+**Ou usando o JAR:**
 
 ```bash
 java -jar target/api-0.0.1-SNAPSHOT.jar
 ```
 
-Por padrão, a API estará disponível em `http://localhost:8080`.
+**Verificação:** Acesse http://localhost:8080/actuator/health para confirmar que a API está funcionando.
 
-### 9\. Documentação da API (Swagger UI)
+## 📚 Documentação da API
 
-Após iniciar a aplicação, a documentação interativa da API (Swagger UI) estará disponível em:
+A API é completamente documentada usando o Springdoc OpenAPI (Swagger), permitindo visualização e teste interativo dos endpoints.
 
-* [http://localhost:8080/swagger-ui.html](https://www.google.com/search?q=http://localhost:8080/swagger-ui.html)
+### Acessando a Documentação
 
-A especificação OpenAPI v3 em formato JSON pode ser acessada em:
+Após iniciar a aplicação, acesse:
 
-* [http://localhost:8080/v3/api-docs](https://www.google.com/search?q=http://localhost:8080/v3/api-docs)
+-   **Swagger UI**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+-   **Especificação OpenAPI v3 (JSON)**: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
 
-A autenticação HTTP Basic pode ser configurada diretamente na interface do Swagger UI através do botão "Authorize" para testar os endpoints protegidos. Note que as rotas do Swagger foram configuradas para não exigir autenticação, facilitando o acesso à documentação.
+### Testando Endpoints
 
------
+1. Acesse o Swagger UI
+2. Clique no botão **Authorize** no canto superior direito
+3. Insira suas credenciais (para endpoints protegidos)
+4. Expanda o endpoint desejado e clique em **Try it out**
+5. Preencha os parâmetros necessários e execute
 
-Obrigado por visitar nosso projeto! ❤️
+## 👥 Contribuição
+
+Contribuições são bem-vindas! Se você deseja contribuir com o projeto, siga estas etapas:
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Implemente suas alterações
+4. Execute os testes para garantir que tudo está funcionando
+5. Faça commit das alterações (`git commit -m 'Adiciona nova feature'`)
+6. Envie para a branch (`git push origin feature/nova-feature`)
+7. Abra um Pull Request
+
+### Convenções de Código
+
+-   Siga o padrão de código Java do Google
+-   Adicione testes para novas funcionalidades
+-   Mantenha a documentação atualizada
+
+## 📄 Licença
+
+Este projeto está licenciado sob a [MIT License](LICENSE) - veja o arquivo LICENSE para detalhes.
+
+---
+
+<p align="center">
+  <b>GameSync API</b> - Desenvolvido com ❤️ pela equipe GameSync
+</p>
