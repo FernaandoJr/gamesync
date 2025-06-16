@@ -38,6 +38,9 @@ public class GameUpdateDTO {
 	@Size(max = 100, message = "Developer name must be up to 100 characters.")
 	private String developer;
 
+	@Size(max = 1024, message = "Image URL must be up to 1024 characters.")
+	private String imageUrl;
+
 	@PositiveOrZero(message = "Hours played must be zero or positive.")
 	private Integer hoursPlayed;
 
@@ -73,6 +76,14 @@ public class GameUpdateDTO {
 
 	public void setDeveloper(String developer) {
 		this.developer = developer;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 	public Integer getHoursPlayed() {

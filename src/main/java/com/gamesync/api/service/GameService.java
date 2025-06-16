@@ -87,6 +87,7 @@ public class GameService {
 		newGame.setDescription(createDTO.getDescription());
 		newGame.setDeveloper(createDTO.getDeveloper());
 		newGame.setUserId(currentUser.getId());
+		newGame.setImageUrl(createDTO.getImageUrl());
 		newGame.setHoursPlayed(createDTO.getHoursPlayed() != null ? createDTO.getHoursPlayed() : 0);
 		newGame.setFavorite(createDTO.isFavorite());
 
@@ -170,6 +171,9 @@ public class GameService {
 					}
 					if (updateDTO.getDeveloper() != null && !updateDTO.getDeveloper().isBlank()) {
 						existingGame.setDeveloper(updateDTO.getDeveloper());
+					}
+					if (updateDTO.getImageUrl() != null) {
+						existingGame.setImageUrl(updateDTO.getImageUrl());
 					}
 					if (updateDTO.getHoursPlayed() != null) {
 						existingGame.setHoursPlayed(updateDTO.getHoursPlayed());
