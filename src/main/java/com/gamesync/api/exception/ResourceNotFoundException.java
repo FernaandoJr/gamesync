@@ -1,4 +1,3 @@
-// File: src/main/java/com/gamesync/api/exception/ResourceNotFoundException.java
 package com.gamesync.api.exception;
 
 /**
@@ -16,6 +15,6 @@ public class ResourceNotFoundException extends RuntimeException {
      * Exemplo: "Usuário com ID '123' não encontrado."
      */
     public ResourceNotFoundException(String message) {
-        super(message); // Chama o construtor da classe pai (RuntimeException) com a mensagem.
+			super(message);
     }
 }

@@ -1,6 +1,5 @@
 package com.gamesync.api.service;
 
-import com.gamesync.api.model.User;
 import com.gamesync.api.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

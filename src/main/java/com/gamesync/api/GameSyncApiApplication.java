@@ -8,6 +8,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.github.cdimascio.dotenv.Dotenv;
 @SpringBootApplication(
@@ -30,12 +32,19 @@ import io.github.cdimascio.dotenv.Dotenv;
 		scheme = "basic"
 )
 public class GameSyncApiApplication {
+	private static final Logger logger = LoggerFactory.getLogger(GameSyncApiApplication.class);
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.load();
+		// Load .env file and set the environment variables before Spring Boot starts
+		Dotenv dotenv = Dotenv.configure().load();
+
+		// Set all environment variables from the .env file as system properties
 		dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 
+		// Run the application
 		SpringApplication.run(GameSyncApiApplication.class, args);
+
+		logger.info("Application started successfully with MongoDB configuration loaded from .env file");
 	}
 
 }

@@ -10,7 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement; // Importação adicionada
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -26,14 +26,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/games")
-@Tag(name = "Games", description = "Operações relacionadas ao gerenciamento de jogos.") // Anotação adicionada
+@Tag(name = "Games", description = "Operações relacionadas ao gerenciamento de jogos.")
 public class GameController {
     private final GameService gameService;
 
-    /**
-     * Construtor para injeção de dependência do GameService.
-     * @param gameService A instância do serviço de jogos a ser injetada pelo Spring.
-     */
     public GameController(GameService gameService) {
         this.gameService = gameService;
     }
@@ -45,24 +41,22 @@ public class GameController {
      * @return ResponseEntity contendo o jogo criado e o status HTTP 201 (Created).
      */
     @PostMapping
-    @Operation(summary = "Cria um novo jogo", //
-            description = "Adiciona um novo jogo à coleção do usuário autenticado.", //
-            security = @SecurityRequirement(name = "basicAuth"), // Indica que requer autenticação basicAuth
+		@Operation(summary = "Cria um novo jogo", description = "Adiciona um novo jogo à coleção do usuário autenticado.", security = @SecurityRequirement(name = "basicAuth"), 
             responses = {
-                    @ApiResponse(responseCode = "201", description = "Jogo criado com sucesso.", //
+						@ApiResponse(responseCode = "201", description = "Jogo criado com sucesso.",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = Game.class))), //
-                    @ApiResponse(responseCode = "400", description = "Dados de entrada inválidos ou malformados.", //
+										schema = @Schema(implementation = Game.class))),
+						@ApiResponse(responseCode = "400", description = "Dados de entrada inválidos ou malformados.",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorResponse.class))), //
-                    @ApiResponse(responseCode = "401", description = "Credenciais de autenticação ausentes ou inválidas.", //
+										schema = @Schema(implementation = ErrorResponse.class))),
+						@ApiResponse(responseCode = "401", description = "Credenciais de autenticação ausentes ou inválidas.",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = ErrorResponse.class))), //
-                    @ApiResponse(responseCode = "409", description = "Já existe um jogo com o mesmo nome para este usuário.", // Nova resposta para DuplicateResourceException
+										schema = @Schema(implementation = ErrorResponse.class))),
+						@ApiResponse(responseCode = "409", description = "Já existe um jogo com o mesmo nome para este usuário.",
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ErrorResponse.class)))
             })
-    public ResponseEntity<Game> createGame(@Valid @RequestBody GameCreateDTO createDTO) { //
+		public ResponseEntity<Game> createGame(@Valid @RequestBody GameCreateDTO createDTO) {
         Game createdGame = gameService.createGame(createDTO);
         return new ResponseEntity<>(createdGame, HttpStatus.CREATED);
     }
@@ -78,7 +72,7 @@ public class GameController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "Lista de jogos retornada com sucesso.",
                             content = @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = List.class, subTypes = {Game.class}))), // Retorna uma lista de Game
+										schema = @Schema(implementation = List.class, subTypes = { Game.class }))),
                     @ApiResponse(responseCode = "401", description = "Credenciais de autenticação ausentes ou inválidas.",
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ErrorResponse.class)))
@@ -112,7 +106,8 @@ public class GameController {
             })
     public ResponseEntity<Game> getGameById(@PathVariable String id) {
         Game game = gameService.findGameByIdAndCurrentUser(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Jogo com ID '" + id + "' não encontrado ou acesso negado.")); //
+						.orElseThrow(
+								() -> new ResourceNotFoundException("Jogo com ID '" + id + "' não encontrado ou acesso negado."));
         return ResponseEntity.ok(game);
     }
 
@@ -141,13 +136,14 @@ public class GameController {
                     @ApiResponse(responseCode = "404", description = "Jogo não encontrado para atualização ou acesso negado.",
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ErrorResponse.class))),
-                    @ApiResponse(responseCode = "409", description = "O novo nome do jogo já existe para este usuário.", // Nova resposta para DuplicateResourceException
+						@ApiResponse(responseCode = "409", description = "O novo nome do jogo já existe para este usuário.", 
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = ErrorResponse.class)))
             })
     public ResponseEntity<Game> updateGame(@PathVariable String id, @Valid @RequestBody GameUpdateDTO updateDTO) {
         Game updatedGame = gameService.updateGame(id, updateDTO)
-                .orElseThrow(() -> new ResourceNotFoundException("Falha ao atualizar. Jogo com ID '" + id + "' não encontrado ou acesso negado.")); //
+						.orElseThrow(() -> new ResourceNotFoundException(
+								"Falha ao atualizar. Jogo com ID '" + id + "' não encontrado ou acesso negado."));
         return ResponseEntity.ok(updatedGame);
     }
 

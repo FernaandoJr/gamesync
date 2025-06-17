@@ -1,5 +1,9 @@
 package com.gamesync.api.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,7 +21,16 @@ import java.util.stream.Collectors;
  * ela também implementa a interface UserDetails do Spring Security,
  * permitindo que seja usada diretamente pelo framework de segurança para
  * autenticação e autorização.
+ * 
+ * Utilizando Lombok:
+ * - @Getter/@Setter: Gera getters e setters para todos os campos
+ * - @NoArgsConstructor: Gera construtor sem argumentos
+ * - @AllArgsConstructor: Gera construtor com todos os argumentos
  */
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "users")
 public class User implements UserDetails {
 	@Id
@@ -30,25 +43,6 @@ public class User implements UserDetails {
 	private String email;
 
 	private List<String> roles;
-
-	public User() {
-	}
-
-	/**
-	 * Construtor com campos essenciais para criar uma instância de User.
-	 * 
-	 * @param username O nome de usuário.
-	 * @param password A senha (ainda não codificada neste ponto, geralmente
-	 *                 codificada pelo serviço antes de salvar).
-	 * @param email    O email do usuário.
-	 * @param roles    A lista de papéis/perfis do usuário.
-	 */
-	public User(String username, String password, String email, List<String> roles) { //
-		this.username = username;
-		this.password = password;
-		this.email = email;
-		this.roles = roles;
-	}
 
 	// --- Implementação dos métodos da interface UserDetails ---
 
@@ -137,34 +131,6 @@ public class User implements UserDetails {
 		return true; // Por padrão, os usuários são habilitados. Pode ser implementada lógica
 									// customizada aqui.
 	}
-
-	public String getId() {
-		return id;
-	} //
-
-	public void setId(String id) {
-		this.id = id;
-	} //
-
-	public void setUsername(String username) {
-		this.username = username;
-	} //
-
-	public void setPassword(String password) {
-		this.password = password;
-	} // public String getEmail() { return email; } //
-
-	public void setEmail(String email) {
-		this.email = email;
-	} //
-
-	public List<String> getRoles() {
-		return roles;
-	} //
-
-	public void setRoles(List<String> roles) {
-		this.roles = roles;
-	} //
 
 	/**
 	 * Sobrescreve o método toString para fornecer uma representação textual do

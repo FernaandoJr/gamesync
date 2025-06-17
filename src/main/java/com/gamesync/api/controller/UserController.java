@@ -2,7 +2,6 @@ package com.gamesync.api.controller;
 
 import com.gamesync.api.dto.UserRegistrationDTO;
 import com.gamesync.api.dto.UserUpdateDTO;
-import com.gamesync.api.exception.DuplicateResourceException;
 import com.gamesync.api.exception.ResourceNotFoundException;
 import com.gamesync.api.model.User;
 import com.gamesync.api.service.UserService;

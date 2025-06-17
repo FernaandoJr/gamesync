@@ -1,4 +1,3 @@
-// File: src/main/java/com/gamesync/api/exception/DuplicateResourceException.java
 package com.gamesync.api.exception;
 
 /**

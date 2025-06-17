@@ -1,4 +1,3 @@
-// File: src/main/java/com/gamesync/api/exception/BadRequestException.java
 package com.gamesync.api.exception;
 
 /**
